@@ -8,7 +8,7 @@
 version: '3'
 
 x-chatwoot-base: &chatwoot_base
-  image: chatwoot/chatwoot:latest
+  image: chatwoot/chatwoot:v4.16.2
   env_file: .env
   volumes:
     - storage_data:/app/storage
