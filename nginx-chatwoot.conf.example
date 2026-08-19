@@ -1,0 +1,46 @@
+# ============================================================
+# Chatwoot Nginx 反向代理配置示例（aaPanel/宝塔 也可直接参考）
+# 使用方法（aaPanel）：
+#   1) 网站 → 添加站点 chat.your-domain.com（纯静态即可）
+#   2) 申请 SSL：网站 → SSL → Let's Encrypt
+#   3) 网站 → 反向代理 → 添加：
+#        代理名称: chatwoot
+#        目标 URL: http://127.0.0.1:3000
+#      发送域名: $host
+#      启用 WebSocket 支持 ✔（重要！聊天实时性依赖 WebSocket）
+#   4) 如上传大文件，在站点配置里加：client_max_body_size 20m;
+#
+# 以下是等价的原生 Nginx server 块（aaPanel 会自动生成，通常无需手改）
+# ============================================================
+
+server {
+    listen 80;
+    server_name chat.your-domain.com;
+    # 301 跳 HTTPS（由 aaPanel 自动处理，这里仅示意）
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name chat.your-domain.com;
+
+    # aaPanel 会自动管理证书路径，示例：
+    # ssl_certificate     /www/server/panel/vhost/cert/chat.your-domain.com/fullchain.pem;
+    # ssl_certificate_key /www/server/panel/vhost/cert/chat.your-domain.com/privkey.pem;
+
+    client_max_body_size 20m;   # 允许客户上传较大图片/文件
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # WebSocket 支持（Chatwoot 实时聊天必需）
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 300s;
+        proxy_send_timeout 300s;
+    }
+}
