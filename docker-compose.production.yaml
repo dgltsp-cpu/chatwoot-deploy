@@ -5,7 +5,6 @@
 #   - 其余保持与官方一致
 # 参考: https://github.com/chatwoot/chatwoot
 # ============================================================
-version: '3'
 
 x-chatwoot-base: &chatwoot_base
   image: chatwoot/chatwoot:v4.16.2
