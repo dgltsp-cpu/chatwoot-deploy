@@ -10,12 +10,12 @@ mkdir -p backups
 TS=$(date +%Y%m%d_%H%M%S)
 
 echo "==> [1/2] 备份 PostgreSQL..."
-docker compose exec -T postgres pg_dump -U postgres -d chatwoot_production \
+docker compose -f docker-compose.production.yaml exec -T postgres pg_dump -U postgres -d chatwoot_production \
   | gzip > "backups/db_${TS}.sql.gz"
 echo "    完成：backups/db_${TS}.sql.gz ($(du -h backups/db_${TS}.sql.gz | cut -f1))"
 
 echo "==> [2/2] 备份上传文件(storage 卷)..."
-RAILS_CID=$(docker compose ps -q rails)
+RAILS_CID=$(docker compose -f docker-compose.production.yaml ps -q rails)
 STORAGE_SRC=$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/app/storage"}}{{.Source}}{{end}}{{end}}' "$RAILS_CID" | head -n1)
 if [ -n "$STORAGE_SRC" ] && [ -d "$STORAGE_SRC" ]; then
   tar -czf "backups/storage_${TS}.tar.gz" -C "$STORAGE_SRC" .

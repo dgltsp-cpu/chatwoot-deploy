@@ -77,16 +77,16 @@ gen_if_empty REDIS_PASSWORD 32
 
 # ---------- 4. 启动 ----------
 echo "==> 拉取镜像并启动（首次约 5~10 分钟，取决于网络）..."
-docker compose up -d
+docker compose -f docker-compose.production.yaml up -d
 sleep 10
 echo "==> 容器状态："
-docker compose ps
+docker compose -f docker-compose.production.yaml ps
 
 # ---------- 5. 初始化数据库（首次部署必须） ----------
 echo "==> 初始化数据库（rails db:chatwoot_prepare）..."
 ok=0
 for i in 1 2 3; do
-  if docker compose run --rm rails bundle exec rails db:chatwoot_prepare; then
+  if docker compose -f docker-compose.production.yaml run --rm rails bundle exec rails db:chatwoot_prepare; then
     ok=1
     break
   fi
