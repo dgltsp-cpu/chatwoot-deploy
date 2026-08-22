@@ -25,3 +25,13 @@ sudo bash deploy.sh
 
 - `.env` 已被 `.gitignore` 忽略，密钥由 `deploy.sh` 自动生成，不会进入 git。
 - 注册完管理员后，建议把 `.env` 中 `ENABLE_ACCOUNT_SIGNUP` 改为 `false` 并重启容器。
+
+## 隐藏「由 Chatwoot 支持」水印
+
+组件底部水印由账户功能 `disable_branding` 控制，社区版后台无开关，用 `rails runner` 开启：
+
+```bash
+docker compose -f docker-compose.production.yaml exec rails bundle exec rails runner "Account.first.enable_features!('disable_branding')"
+```
+
+详细步骤见 [部署方案.md 第十二节](部署方案.md)。
