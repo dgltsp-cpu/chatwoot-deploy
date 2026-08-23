@@ -35,3 +35,18 @@ docker compose -f docker-compose.production.yaml exec rails bundle exec rails ru
 ```
 
 详细步骤见 [部署方案.md 第十二节](部署方案.md)。
+
+## 修复：App 里图片显示不了（404）
+
+症状：网页和客服后台都能看到图片，手机 App 看不到。原因是 Chatwoot 的图片地址
+是带签名的临时链接，Rails 默认 **5 分钟就过期**；App 会缓存消息里的旧地址，
+过期后加载就 404。网页端每次重新拉取消息，所以正常。
+
+本仓库已内置修复（`config/initializers/active_storage_url_expiry.rb`），把有效期改为一年。
+部署/升级后执行：
+
+```bash
+docker compose -f docker-compose.production.yaml up -d
+```
+
+然后在手机 App 里下拉刷新会话即可。旧消息会在刷新后重新拿到有效地址并正常显示。

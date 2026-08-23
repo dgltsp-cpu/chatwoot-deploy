@@ -11,6 +11,8 @@ x-chatwoot-base: &chatwoot_base
   env_file: .env
   volumes:
     - storage_data:/app/storage
+    # 延长 ActiveStorage 签名 URL 有效期，解决 App 里图片 404（见 config/initializers/）
+    - ./config/initializers/active_storage_url_expiry.rb:/app/config/initializers/active_storage_url_expiry.rb:ro
 
 services:
   rails:
