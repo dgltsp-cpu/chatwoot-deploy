@@ -44,6 +44,9 @@ docker compose -f docker-compose.production.yaml exec rails bundle exec rails ru
    返回 302 再跳到真实文件。手机 App 不跟随 302，所以图片加载空白；浏览器会自动跟随所以正常。
    已改为 proxy 方式：Rails 直接返回图片内容（200、无跳转）。
 2. **地址过期**：签名地址 Rails 默认 5 分钟过期，App 缓存旧地址后加载 404。已延长到一年。
+3. **视频播不了（App）**：Chatwoot 官方只把 audio 加进了"允许内联播放"名单，漏了 video，
+   视频被标记为 `Content-Disposition: attachment`，iOS 自带播放器（AVPlayer）会拒绝播放
+   （网页浏览器忽略该头所以正常）。已把常见视频格式（mp4/mov/webm 等）加入内联名单。
 
 部署/升级后执行：
 
