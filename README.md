@@ -36,17 +36,28 @@ docker compose -f docker-compose.production.yaml exec rails bundle exec rails ru
 
 详细步骤见 [部署方案.md 第十二节](部署方案.md)。
 
-## 修复：App 里图片显示不了（404）
+## 修复：App 里图片显示不了（网页正常、App 空白）
 
-症状：网页和客服后台都能看到图片，手机 App 看不到。原因是 Chatwoot 的图片地址
-是带签名的临时链接，Rails 默认 **5 分钟就过期**；App 会缓存消息里的旧地址，
-过期后加载就 404。网页端每次重新拉取消息，所以正常。
+有两个原因叠加，本仓库已一并修复（`config/initializers/active_storage_url_expiry.rb`）：
 
-本仓库已内置修复（`config/initializers/active_storage_url_expiry.rb`），把有效期改为一年。
+1. **302 跳转**：Chatwoot 默认图片地址是 `/rails/active_storage/.../redirect/...`，
+   返回 302 再跳到真实文件。手机 App 不跟随 302，所以图片加载空白；浏览器会自动跟随所以正常。
+   已改为 proxy 方式：Rails 直接返回图片内容（200、无跳转）。
+2. **地址过期**：签名地址 Rails 默认 5 分钟过期，App 缓存旧地址后加载 404。已延长到一年。
+
 部署/升级后执行：
 
 ```bash
 docker compose -f docker-compose.production.yaml up -d
+docker compose -f docker-compose.production.yaml restart rails
 ```
 
-然后在手机 App 里下拉刷新会话即可。旧消息会在刷新后重新拿到有效地址并正常显示。
+验证是否生效：
+
+```bash
+docker compose -f docker-compose.production.yaml exec rails bundle exec rails runner \
+  'a = Attachment.last; puts a.file_url; puts Rails.application.config.active_storage.resolve_model_to_route'
+```
+
+看到 `/rails/active_storage/blobs/proxy/...` 和 `rails_storage_proxy` 即生效。
+然后在手机 App 里下拉刷新会话；旧消息刷新后会拿到新地址并正常显示。
