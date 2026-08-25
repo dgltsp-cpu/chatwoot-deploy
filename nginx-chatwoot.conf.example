@@ -30,6 +30,19 @@ server {
 
     client_max_body_size 20m;   # 允许客户上传较大图片/文件
 
+    # ActiveStorage 附件：必须关缓存并透传 Range，
+    # 否则手机端图片/视频会出现“只能下载”或“刚发能播、过会儿不能播”
+    location ~ ^/rails/active_storage/ {
+        proxy_cache_bypass 1;
+        proxy_no_cache 1;
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
     location / {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;

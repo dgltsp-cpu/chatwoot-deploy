@@ -1,18 +1,16 @@
 # ============================================================
-# Chatwoot 自托管生产环境 Docker Compose
-# 基于官方 docker-compose.production.yaml 修改：
-#   - PostgreSQL 密码改为从 .env 注入（官方文件为空串，直接明文写死不安全）
-#   - 其余保持与官方一致
-# 参考: https://github.com/chatwoot/chatwoot
+# Chatwoot 自托管生产环境 Docker Compose（自定义镜像版）
+# 镜像: ghcr.io/dgltsp-cpu/chatwoot:v4.17.0-custom
+#   - 基于 Chatwoot v4.17.0 社区版定制（源码构建仓库: dgltsp-cpu/chatwoot-v4）
+#   - 已固化进镜像: proxy 附件路由 / 365天有效期 / 图片+视频 inline / 默认去品牌
+#   - 因此不再需要挂载 active_storage_url_expiry.rb
 # ============================================================
 
 x-chatwoot-base: &chatwoot_base
-  image: chatwoot/chatwoot:v4.16.2
+  image: ghcr.io/dgltsp-cpu/chatwoot:v4.17.0-custom
   env_file: .env
   volumes:
     - storage_data:/app/storage
-    # 延长 ActiveStorage 签名 URL 有效期，解决 App 里图片 404（见 config/initializers/）
-    - ./config/initializers/active_storage_url_expiry.rb:/app/config/initializers/active_storage_url_expiry.rb:ro
 
 services:
   rails:
