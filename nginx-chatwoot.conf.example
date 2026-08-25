@@ -28,7 +28,7 @@ server {
     # ssl_certificate     /www/server/panel/vhost/cert/chat.your-domain.com/fullchain.pem;
     # ssl_certificate_key /www/server/panel/vhost/cert/chat.your-domain.com/privkey.pem;
 
-    client_max_body_size 20m;   # 允许客户上传较大图片/文件
+    client_max_body_size 40m;   # 允许客户上传较大图片/文件（与 Chatwoot 上传上限 40MB 对齐）
 
     # ActiveStorage 附件：必须关缓存并透传 Range，
     # 否则手机端图片/视频会出现“只能下载”或“刚发能播、过会儿不能播”

@@ -1,0 +1,41 @@
+# ============================================================
+# Chatwoot 反向代理配置（aaPanel/宝塔 反向代理配置文件格式）
+# 使用位置：网站 → chat.你的域名.com → 反向代理 → 配置文件
+# 整段替换 #PROXY-START/ 与 #PROXY-END/ 之间的内容
+# 说明：
+#   - client_max_body_size 40m 与 Chatwoot 前端上传上限(40MB)对齐
+#   - /rails/active_storage/ 必须关缓存并透传 Range，否则手机端
+#     图片/视频会出现“只能下载”或“刚发能播、过会儿不能播”
+#   - location / 保留 WebSocket 头，气泡实时聊天依赖
+# ============================================================
+
+#PROXY-START/
+client_max_body_size 40m;
+
+location ~ ^/rails/active_storage/ {
+    proxy_cache off;
+    proxy_no_cache 1;
+    proxy_cache_bypass 1;
+    proxy_pass http://127.0.0.1:3000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header REMOTE-HOST $remote_addr;
+    proxy_set_header Range $http_range;
+    proxy_set_header If-Range $http_if_range;
+    proxy_http_version 1.1;
+}
+
+location /
+{
+    proxy_cache off;
+    proxy_pass http://127.0.0.1:3000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header REMOTE-HOST $remote_addr;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    proxy_http_version 1.1;
+}
+#PROXY-END/
