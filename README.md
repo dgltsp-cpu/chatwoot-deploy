@@ -1,6 +1,6 @@
 # Chatwoot 自托管部署（自定义镜像版，Docker Compose）
 
-基于自定义镜像 `ghcr.io/dgltsp-cpu/chatwoot:v4.17.1-custom` 的生产环境部署仓库。
+基于自定义镜像 `ghcr.io/dgltsp-cpu/chatwoot:v4.17.5-custom` 的生产环境部署仓库。
 镜像由 [dgltsp-cpu/chatwoot-v4](https://github.com/dgltsp-cpu/chatwoot-v4) 源码构建，
 **VPS 上只需要本仓库，不需要克隆源码仓库**。
 

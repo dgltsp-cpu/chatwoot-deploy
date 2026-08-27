@@ -7,7 +7,7 @@
 # ============================================================
 
 x-chatwoot-base: &chatwoot_base
-  image: ghcr.io/dgltsp-cpu/chatwoot:v4.17.4-custom
+  image: ghcr.io/dgltsp-cpu/chatwoot:v4.17.5-custom
   env_file: .env
   volumes:
     - storage_data:/app/storage
