@@ -1,6 +1,6 @@
 # Chatwoot 自托管部署（自定义镜像版，Docker Compose）
 
-基于自定义镜像 `ghcr.io/dgltsp-cpu/chatwoot:v4.17.6-custom` 的生产环境部署仓库。
+基于自定义镜像 `ghcr.io/dgltsp-cpu/chatwoot:v4.17.7-custom` 的生产环境部署仓库。
 镜像由 [dgltsp-cpu/chatwoot-v4](https://github.com/dgltsp-cpu/chatwoot-v4) 源码构建，
 **VPS 上只需要本仓库，不需要克隆源码仓库**。
 
@@ -38,18 +38,15 @@ sudo bash deploy.sh
 - `.env` 已被 `.gitignore` 忽略，密钥由 `deploy.sh` 自动生成，不会进入 git。
 - 注册完管理员后，建议把 `.env` 中 `ENABLE_ACCOUNT_SIGNUP` 改为 `false` 并重启容器。
 
-## IP 定位（可选，显示访客城市/国家）
+## IP 定位（自动开启，显示访客省市区/运营商）
 
-1. 注册 MaxMind（免费）：https://www.maxmind.com/en/geolite2/signup ，**先在后台接受 GeoLite2 EULA**。
-2. 在 `.env` 填两个值（Account ID 是纯数字，在后台 Account / Manage License Keys 页面可见）：
-   ```
-   IP_LOOKUP_API_KEY=<License Key>
-   IP_LOOKUP_ACCOUNT_ID=<Account ID>
-   ```
-3. 重建容器生效：`docker compose -f docker-compose.production.yaml up -d --force-recreate`
-4. 验证：日志出现 `Fetch GeoLite2-City database` → `Fetch complete`，`vendor/db/GeoLiteCity.mmdb` 存在即成功。
+镜像启动时自动下载 ip2region 离线库（约 11MB，无需注册、无需 key、无配额）：
 
-> 只填 key、不填 Account ID 会 451 下载失败（只能显示 IP，没有位置）。
+1. 无需任何配置，首次启动日志出现 `Fetch ip2region database` → `Fetch complete` 即成功。
+2. 验证数据文件：`docker compose -f docker-compose.production.yaml exec rails ls -lh vendor/db/ip2region.xdb`
+3. 位置显示：客服后台/App 联系人位置显示「广东省深圳市（电信）」这种格式；IP 一栏仍只显示 IP。
+
+> 数据更新：`docker compose -f docker-compose.production.yaml exec rails sh -c 'rm -f vendor/db/ip2region.xdb'` 后重启容器即可重新下载最新数据。
 > 位置只对新访客生效；已有会话需手动补查，命令见《部署方案.md》。
 
 ## 隐藏「由 Chatwoot 支持」水印
