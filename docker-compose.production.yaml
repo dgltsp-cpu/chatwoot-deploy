@@ -1,13 +1,13 @@
 # ============================================================
 # Chatwoot 自托管生产环境 Docker Compose（自定义镜像版）
-# 镜像: ghcr.io/dgltsp-cpu/chatwoot:v4.17.4-custom
+# 镜像: ghcr.io/dgltsp-cpu/chatwoot:v4.17.6-custom
 #   - 基于 Chatwoot v4.17.0 社区版定制（源码构建仓库: dgltsp-cpu/chatwoot-v4）
 #   - 已固化进镜像: proxy 附件路由 / 365天有效期 / 图片+视频 inline / 默认去品牌
 #   - 因此不再需要挂载 active_storage_url_expiry.rb
 # ============================================================
 
 x-chatwoot-base: &chatwoot_base
-  image: ghcr.io/dgltsp-cpu/chatwoot:v4.17.5-custom
+  image: ghcr.io/dgltsp-cpu/chatwoot:v4.17.6-custom
   env_file: .env
   volumes:
     - storage_data:/app/storage
