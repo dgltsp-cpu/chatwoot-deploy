@@ -75,6 +75,26 @@ gen_if_empty SECRET_KEY_BASE 64
 gen_if_empty POSTGRES_PASSWORD 32
 gen_if_empty REDIS_PASSWORD 32
 
+# ---------- 3.5 IP 定位：校验 MaxMind Account ID ----------
+IP_LOOKUP_KEY=$(grep -E '^IP_LOOKUP_API_KEY=' .env | head -n1 | cut -d= -f2- || true)
+if [ -n "$IP_LOOKUP_KEY" ]; then
+  if ! grep -qE '^IP_LOOKUP_ACCOUNT_ID=' .env; then
+    echo "IP_LOOKUP_ACCOUNT_ID=" >> .env
+  fi
+  IP_LOOKUP_ID=$(grep -E '^IP_LOOKUP_ACCOUNT_ID=' .env | head -n1 | cut -d= -f2- || true)
+  if [ -z "$IP_LOOKUP_ID" ]; then
+    echo "==> 检测到 IP_LOOKUP_API_KEY 已填写，但 IP_LOOKUP_ACCOUNT_ID 为空。"
+    echo "    MaxMind 2024 年起下载位置数据库必须同时填写 Account ID（Basic Auth 用户名），"
+    echo "    否则会报 451 下载失败，只能显示 IP、不能显示城市/国家。"
+    echo "    Account ID 在 MaxMind 后台 Account 页面（纯数字，不是 License Key）。"
+    read -r -p "    现在补上 Account ID（直接回车 = 跳过，位置功能不启用）: " ACCT_ID || true
+    if [ -n "$ACCT_ID" ]; then
+      sed -i "s/^IP_LOOKUP_ACCOUNT_ID=$/IP_LOOKUP_ACCOUNT_ID=$ACCT_ID/" .env
+      echo "==> 已写入 IP_LOOKUP_ACCOUNT_ID"
+    fi
+  fi
+fi
+
 # ---------- 4. 启动 ----------
 echo "==> 拉取镜像并启动（首次约 5~10 分钟，取决于网络）..."
 docker compose -f docker-compose.production.yaml up -d

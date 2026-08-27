@@ -38,6 +38,20 @@ sudo bash deploy.sh
 - `.env` 已被 `.gitignore` 忽略，密钥由 `deploy.sh` 自动生成，不会进入 git。
 - 注册完管理员后，建议把 `.env` 中 `ENABLE_ACCOUNT_SIGNUP` 改为 `false` 并重启容器。
 
+## IP 定位（可选，显示访客城市/国家）
+
+1. 注册 MaxMind（免费）：https://www.maxmind.com/en/geolite2/signup ，**先在后台接受 GeoLite2 EULA**。
+2. 在 `.env` 填两个值（Account ID 是纯数字，在后台 Account / Manage License Keys 页面可见）：
+   ```
+   IP_LOOKUP_API_KEY=<License Key>
+   IP_LOOKUP_ACCOUNT_ID=<Account ID>
+   ```
+3. 重建容器生效：`docker compose -f docker-compose.production.yaml up -d --force-recreate`
+4. 验证：日志出现 `Fetch GeoLite2-City database` → `Fetch complete`，`vendor/db/GeoLiteCity.mmdb` 存在即成功。
+
+> 只填 key、不填 Account ID 会 451 下载失败（只能显示 IP，没有位置）。
+> 位置只对新访客生效；已有会话需手动补查，命令见《部署方案.md》。
+
 ## 隐藏「由 Chatwoot 支持」水印
 
 新账号默认已隐藏（镜像内 `disable_branding` 默认开启）。
